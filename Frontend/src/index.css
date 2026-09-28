@@ -1,43 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
-/* =================== Theme Design Tokens =================== */
+/* =================== Permanently Default Dark Mode Tokens =================== */
 
-/* Default / Dark Theme */
 :root,
-html.dark,
+html,
+body,
 [data-theme='dark'] {
-  --paper: #14171C;
-  --surface: #1C2027;
-  --ink: #E8E5DC;
-  --ink-soft: #A6A196;
-  --rule: #33373F;
-  --accent-wire: #E0574A;
-  --accent-wire-soft: #E0574A26;
-  --accent-signal: #35A88C;
-  --accent-signal-soft: #35A88C26;
+  --paper: #14171C !important;
+  --surface: #1C2027 !important;
+  --ink: #E8E5DC !important;
+  --ink-soft: #A6A196 !important;
+  --rule: #33373F !important;
+  --accent-wire: #E0574A !important;
+  --accent-wire-soft: #E0574A26 !important;
+  --accent-signal: #35A88C !important;
+  --accent-signal-soft: #35A88C26 !important;
 
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
 
-  color-scheme: dark;
+  color-scheme: dark !important;
 }
 
-/* Light Theme Variables */
-html.light,
-html:not(.dark),
+/* Light Theme Variables — Applies ONLY when light mode toggle is explicitly active on home page */
+html.light-mode,
+body.light-mode,
 [data-theme='light'] {
-  --paper: #F4F1EA;
-  --surface: #FFFFFF;
-  --ink: #1A1A1A;
-  --ink-soft: #555555;
-  --rule: #E0DDD5;
-  --accent-wire: #D03B2C;
-  --accent-wire-soft: #D03B2C1A;
-  --accent-signal: #228B71;
-  --accent-signal-soft: #228B711A;
+  --paper: #F4F1EA !important;
+  --surface: #FFFFFF !important;
+  --ink: #1A1A1A !important;
+  --ink-soft: #555555 !important;
+  --rule: #E0DDD5 !important;
+  --accent-wire: #D03B2C !important;
+  --accent-wire-soft: #D03B2C1A !important;
+  --accent-signal: #228B71 !important;
+  --accent-signal-soft: #228B711A !important;
 
-  color-scheme: light;
+  color-scheme: light !important;
 }
 
 * {
@@ -46,14 +46,14 @@ html:not(.dark),
 
 html, body, #root {
   height: 100%;
-  background-color: var(--paper);
-  color: var(--ink);
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
 }
 
 body {
   margin: 0;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--paper) !important;
+  color: var(--ink) !important;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
@@ -94,7 +94,7 @@ button {
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: var(--paper);
+  background-color: var(--paper) !important;
 }
 
 .page__body {
@@ -104,7 +104,7 @@ button {
 .footer {
   border-top: 1px solid var(--rule);
   padding: 18px 0;
-  background-color: var(--paper);
+  background-color: var(--paper) !important;
 }
 
 .footer__row {
@@ -127,7 +127,7 @@ button {
   font-family: var(--font-display);
   font-size: 1.8rem;
   margin: 0 0 20px;
-  color: var(--ink);
+  color: var(--ink) !important;
 }
 
 .page-section__title-accent {
@@ -173,7 +173,7 @@ button {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: var(--paper);
+  background: var(--paper) !important;
   border-bottom: 1px solid var(--rule);
 }
 
@@ -192,7 +192,7 @@ button {
   font-weight: 600;
   font-size: 1.5rem;
   text-decoration: none;
-  color: var(--ink);
+  color: var(--ink) !important;
   letter-spacing: -0.01em;
   flex-shrink: 0;
 }
@@ -234,8 +234,8 @@ button {
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
-  color: var(--paper);
-  background: var(--ink);
+  color: var(--paper) !important;
+  background: var(--ink) !important;
   padding: 9px 16px;
   border-radius: 3px;
   letter-spacing: 0.01em;
@@ -272,7 +272,7 @@ button {
 .dark-toggle {
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  background: var(--surface);
+  background: var(--surface) !important;
   border: 1px solid var(--rule);
   color: var(--ink-soft);
   padding: 6px 10px;
@@ -306,8 +306,8 @@ button {
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.92rem;
-  color: var(--ink);
-  background: var(--surface);
+  color: var(--ink) !important;
+  background: var(--surface) !important;
   border: 1px solid var(--rule);
   border-radius: 3px;
   padding: 8px 12px;
@@ -368,8 +368,8 @@ button {
   padding: 9px 12px;
   border: 1px solid var(--rule);
   border-radius: 3px;
-  background: var(--surface);
-  color: var(--ink);
+  background: var(--surface) !important;
+  color: var(--ink) !important;
 }
 
 .search-bar__input:focus {
@@ -382,8 +382,8 @@ button {
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--ink) !important;
+  color: var(--paper) !important;
   border: none;
   border-radius: 3px;
   padding: 9px 14px;
@@ -391,8 +391,8 @@ button {
 }
 
 .search-bar__submit:hover {
-  background: var(--accent-wire);
-  color: #FFFFFF;
+  background: var(--accent-wire) !important;
+  color: #FFFFFF !important;
 }
 
 /* =================== News grid & card =================== */
@@ -407,7 +407,7 @@ button {
 .news-card {
   display: flex;
   flex-direction: column;
-  background: var(--surface);
+  background: var(--surface) !important;
   border: 1px solid var(--rule);
   border-radius: 4px;
   overflow: hidden;
@@ -422,7 +422,7 @@ button {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: var(--paper);
+  background: var(--paper) !important;
   overflow: hidden;
 }
 
@@ -471,12 +471,12 @@ button {
   font-weight: 600;
   font-size: 1.08rem;
   line-height: 1.32;
-  color: var(--ink);
+  color: var(--ink) !important;
   text-decoration: none;
 }
 
 .news-card__title:hover {
-  color: var(--accent-wire);
+  color: var(--accent-wire) !important;
 }
 
 .news-card__desc {
@@ -539,7 +539,7 @@ button {
   font-family: var(--font-display);
   font-size: 1.3rem;
   margin: 0 0 6px;
-  color: var(--ink);
+  color: var(--ink) !important;
 }
 
 .empty-state__sub {
@@ -552,9 +552,9 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: var(--accent-wire-soft);
+  background: var(--accent-wire-soft) !important;
   border: 1px solid var(--accent-wire);
-  color: var(--ink);
+  color: var(--ink) !important;
   padding: 12px 16px;
   border-radius: 4px;
   margin: 4px 0 20px;
@@ -565,8 +565,8 @@ button {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   text-transform: uppercase;
-  background: var(--accent-wire);
-  color: #FFFFFF;
+  background: var(--accent-wire) !important;
+  color: #FFFFFF !important;
   border: none;
   padding: 6px 12px;
   border-radius: 3px;
@@ -608,17 +608,17 @@ button {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  background-color: var(--paper);
+  background-color: var(--paper) !important;
 }
 
 .auth-card {
   width: 100%;
   max-width: 400px;
-  background: var(--surface);
+  background: var(--surface) !important;
   border: 1px solid var(--rule);
   border-radius: 6px;
   padding: 32px;
-  color: var(--ink);
+  color: var(--ink) !important;
 }
 
 .auth-card__eyebrow {
@@ -626,7 +626,7 @@ button {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--accent-wire);
+  color: var(--accent-wire) !important;
   margin: 0 0 8px;
 }
 
@@ -634,7 +634,7 @@ button {
   font-family: var(--font-display);
   font-size: 1.6rem;
   margin: 0 0 24px;
-  color: var(--ink);
+  color: var(--ink) !important;
 }
 
 .auth-field {
@@ -646,7 +646,7 @@ button {
 
 .auth-field label {
   font-size: 0.82rem;
-  color: var(--ink-soft);
+  color: var(--ink-soft) !important;
 }
 
 .auth-field input,
@@ -656,8 +656,8 @@ button {
   padding: 10px 12px;
   border: 1px solid var(--rule);
   border-radius: 4px;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--paper) !important;
+  color: var(--ink) !important;
 }
 
 .auth-field input:focus,
@@ -672,8 +672,8 @@ button {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--ink) !important;
+  color: var(--paper) !important;
   border: none;
   border-radius: 4px;
   padding: 12px;
@@ -682,8 +682,8 @@ button {
 }
 
 .auth-submit:hover {
-  background: var(--accent-wire);
-  color: #FFFFFF;
+  background: var(--accent-wire) !important;
+  color: #FFFFFF !important;
 }
 
 .auth-submit:disabled {
@@ -694,20 +694,20 @@ button {
 .auth-switch {
   margin-top: 18px;
   font-size: 0.85rem;
-  color: var(--ink-soft);
+  color: var(--ink-soft) !important;
   text-align: center;
 }
 
 .auth-switch a {
-  color: var(--accent-wire);
+  color: var(--accent-wire) !important;
   text-decoration: none;
   font-weight: 600;
 }
 
 .auth-error {
-  background: var(--accent-wire-soft);
+  background: var(--accent-wire-soft) !important;
   border: 1px solid var(--accent-wire);
-  color: var(--ink);
+  color: var(--ink) !important;
   padding: 10px 12px;
   border-radius: 4px;
   font-size: 0.85rem;
@@ -726,7 +726,7 @@ button {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: var(--surface);
+  background: var(--surface) !important;
   border: 1px solid var(--rule);
   border-radius: 4px;
   padding: 10px 12px;
@@ -749,13 +749,13 @@ button {
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1rem;
-  color: var(--ink);
+  color: var(--ink) !important;
   text-decoration: none;
   display: block;
 }
 
 .bookmark-row__title:hover {
-  color: var(--accent-wire);
+  color: var(--accent-wire) !important;
 }
 
 .bookmark-row__meta {
@@ -780,14 +780,14 @@ button {
   color: var(--accent-wire);
 }
 
-/* =================== Language Switcher (NewsNow Theme) =================== */
+/* =================== Language Switcher =================== */
 
 .newsnow-lang-select {
   font-family: var(--font-mono);
   font-size: 0.78rem;
   letter-spacing: 0.02em;
-  color: var(--ink);
-  background-color: var(--surface);
+  color: var(--ink) !important;
+  background-color: var(--surface) !important;
   border: 1px solid var(--rule);
   border-radius: 3px;
   padding: 6px 10px;
@@ -802,12 +802,12 @@ button {
 .newsnow-lang-select:hover,
 .newsnow-lang-select:focus {
   border-color: var(--accent-wire);
-  color: var(--ink);
+  color: var(--ink) !important;
 }
 
 .newsnow-lang-select option {
-  background-color: var(--surface);
-  color: var(--ink);
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
   font-family: var(--font-body);
 }
 
@@ -830,22 +830,24 @@ button {
 }
 
 .newsnow-translation-status--loading {
-  background: var(--surface);
-  color: var(--ink);
+  background: var(--surface) !important;
+  color: var(--ink) !important;
   border-color: var(--accent-signal);
 }
 
 .newsnow-translation-status--error {
-  background: var(--accent-wire-soft);
-  color: var(--accent-wire);
+  background: var(--accent-wire-soft) !important;
+  color: var(--accent-wire) !important;
   border-color: var(--accent-wire);
 }
 
-/* =================== Hide Google Translate Banner & Override Injected Styles =================== */
+/* =================== Prevent Google Translate Injected White Overrides =================== */
 
 body {
   top: 0 !important;
   position: static !important;
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
 }
 
 .goog-te-banner-frame,
@@ -879,6 +881,13 @@ font {
   box-shadow: none !important;
 }
 
+/* Force Auth components to strictly use design tokens under dark mode */
+.auth-shell,
+.auth-card {
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+}
+
 /* =================== Additional Auth Actions =================== */
 
 .auth-forgot-row {
@@ -891,7 +900,7 @@ font {
 .auth-forgot-link {
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: var(--accent-wire);
+  color: var(--accent-wire) !important;
   text-decoration: none;
 }
 
@@ -917,8 +926,8 @@ font {
   padding: 0 10px;
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  color: var(--ink-soft);
-  background-color: var(--surface);
+  color: var(--ink-soft) !important;
+  background-color: var(--surface) !important;
 }
 
 .auth-google-btn {
@@ -930,8 +939,8 @@ font {
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 500;
-  background: var(--surface);
-  color: var(--ink);
+  background: var(--surface) !important;
+  color: var(--ink) !important;
   border: 1px solid var(--rule);
   border-radius: 4px;
   padding: 10px;
@@ -941,7 +950,7 @@ font {
 
 .auth-google-btn:hover {
   border-color: var(--accent-wire);
-  background: var(--paper);
+  background: var(--paper) !important;
 }
 
 /* =================== Card Toast Notification =================== */
@@ -951,8 +960,8 @@ font {
   top: 12px;
   right: 12px;
   z-index: 10;
-  background: var(--surface);
-  color: var(--accent-signal);
+  background: var(--surface) !important;
+  color: var(--accent-signal) !important;
   border: 1px solid var(--accent-signal);
   font-family: var(--font-mono);
   font-size: 0.72rem;
