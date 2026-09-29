@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useNews } from '../hooks/useNews'
 import { COUNTRIES } from '../constants/countries'
@@ -19,7 +19,94 @@ export default function CountryNews() {
     category,
   })
 
-  // Remember the reader's last-viewed country so Home.jsx can redirect here next visit.
+  // Speech controller states
+  const [activeSpeechIndex, setActiveSpeechIndex] = useState(null)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+
+  // Ref to access current articles in speech handlers without stale closures
+  const articlesRef = useRef(articles)
+  useEffect(() => {
+    articlesRef.current = articles
+  }, [articles])
+
+  // Stop reading when changing countries, categories, or unmounting
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
+    setActiveSpeechIndex(null)
+    setIsSpeaking(false)
+  }, [code, category])
+
+  // Continuous speech reader (reads each article ONCE without duplicate titles/descriptions)
+    const speakArticle = (index) => {
+      const currentArticles = articlesRef.current
+      if (!('speechSynthesis' in window) || !currentArticles || index >= currentArticles.length) {
+        window.speechSynthesis.cancel()
+        setActiveSpeechIndex(null)
+        setIsSpeaking(false)
+        return
+      }
+
+      const synth = window.speechSynthesis
+      synth.cancel() // Stop currently playing track
+
+      const article = currentArticles[index]
+
+      // --- Deduplication Logic for Speech ---
+      const normalize = (str) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '')
+      const normTitle = normalize(article.title)
+      const normDesc = normalize(article.description)
+
+      const isDuplicateDesc =
+        !normDesc ||
+        normDesc === normTitle ||
+        normDesc.startsWith(normTitle.slice(0, 15)) ||
+        normTitle.startsWith(normDesc.slice(0, 15))
+
+      // Read ONLY the title if description is a duplicate/empty; otherwise read title + description
+      const textToRead = isDuplicateDesc
+        ? article.title
+        : `${article.title}. ${article.description}`
+
+      const utterance = new SpeechSynthesisUtterance(textToRead)
+      utterance.rate = 1.0
+
+      // Automatically trigger next article when current article finishes speaking
+      utterance.onend = () => {
+        const nextIndex = index + 1
+        if (nextIndex < articlesRef.current.length) {
+          speakArticle(nextIndex)
+        } else {
+          setActiveSpeechIndex(null)
+          setIsSpeaking(false)
+        }
+      }
+
+      utterance.onerror = () => {
+        setActiveSpeechIndex(null)
+        setIsSpeaking(false)
+      }
+
+      setActiveSpeechIndex(index)
+      setIsSpeaking(true)
+      synth.speak(utterance)
+    }
+
+  const handleToggleSpeech = (index) => {
+    if (!('speechSynthesis' in window)) {
+      alert('Text-to-Speech is not supported in your browser.')
+      return
+    }
+
+    if (activeSpeechIndex === index && isSpeaking) {
+      window.speechSynthesis.cancel()
+      setActiveSpeechIndex(null)
+      setIsSpeaking(false)
+    } else {
+      speakArticle(index)
+    }
+  }
   useEffect(() => {
     if (isSupported) localStorage.setItem('newsnow_country', code)
   }, [code, isSupported])
@@ -73,8 +160,15 @@ export default function CountryNews() {
         <LoadingSpinner label={`Fetching ${code.toUpperCase()} headlines…`} />
       ) : articles.length ? (
         <div className="news-grid">
-          {articles.map((article) => (
-            <NewsCard key={article.articleId} article={article} />
+          {articles.map((article, index) => (
+            <NewsCard
+              key={article.articleId || article.link || index}
+              article={article}
+              index={index}
+              activeSpeechIndex={activeSpeechIndex}
+              isSpeaking={isSpeaking}
+              onToggleSpeech={handleToggleSpeech}
+            />
           ))}
         </div>
       ) : (
