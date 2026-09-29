@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import DarkModeToggle from './DarkModeToggle'
 import SearchBar from './SearchBar'
 import LanguageSwitcher from './LanguageSwitcher'
 
@@ -30,7 +29,6 @@ export default function Navbar() {
 
         {/* Navigation Actions */}
         <nav className="navbar__nav">
-          <DarkModeToggle />
           <LanguageSwitcher />
 
           {user ? (
