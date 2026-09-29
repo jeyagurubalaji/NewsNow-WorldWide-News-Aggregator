@@ -1,6 +1,8 @@
-import { useState } from 'react'
+// frontend/src/components/NewsCard.jsx
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { addBookmark, removeBookmark } from '../api/newsApi'
+import ShareModal from './ShareModal'
 
 function formatDateTime(pubDate) {
   if (!pubDate) return ''
@@ -34,11 +36,57 @@ export default function NewsCard({ article }) {
   const [busy, setBusy] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
 
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+      }
+    }
+  }, [])
+
   const showToast = (msg) => {
     setToastMessage(msg)
     setTimeout(() => {
       setToastMessage('')
     }, 2500)
+  }
+
+  const toggleSpeech = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!('speechSynthesis' in window)) {
+      alert('Text-to-Speech is not supported in your browser.')
+      return
+    }
+
+    const synth = window.speechSynthesis
+
+    if (isPlaying) {
+      synth.cancel()
+      setIsPlaying(false)
+      return
+    }
+
+    const textToRead = article.title
+    const utterance = new SpeechSynthesisUtterance(textToRead)
+    utterance.rate = 1.0
+
+    utterance.onend = () => setIsPlaying(false)
+    utterance.onerror = () => setIsPlaying(false)
+
+    synth.cancel()
+    synth.speak(utterance)
+    setIsPlaying(true)
+  }
+
+  const openShareModal = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowShareModal(true)
   }
 
   const toggleBookmark = async (e) => {
@@ -69,69 +117,113 @@ export default function NewsCard({ article }) {
     }
   }
 
-  return (
-    <article className="news-card" style={{ position: 'relative' }}>
-      {toastMessage && (
-        <div className="news-card__toast">
-          {toastMessage}
-        </div>
-      )}
+  // --- Strict Deduplication Logic ---
+  // Normalizes strings by removing punctuation, spaces, and lowercase for precise comparison
+  const normalize = (str) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '')
 
-      <a
-        className="news-card__media"
-        href={article.link}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {article.imageUrl ? (
-          <img src={article.imageUrl} alt="" loading="lazy" />
-        ) : (
-          <div className="news-card__media news-card__media--placeholder">
-            <span>N°</span>
+  const normTitle = normalize(article.title)
+  const normDesc = normalize(article.description)
+
+  // Flag as duplicate if empty, exact match, or if description starts with/contains the headline
+  const isDuplicateDesc =
+    !normDesc ||
+    normDesc === normTitle ||
+    normDesc.startsWith(normTitle.slice(0, 15)) ||
+    normTitle.startsWith(normDesc.slice(0, 15))
+
+  return (
+    <>
+      <article className="news-card" style={{ position: 'relative' }}>
+        {toastMessage && (
+          <div className="news-card__toast">
+            {toastMessage}
           </div>
         )}
-      </a>
-
-      <div className="news-card__body">
-        <div className="news-card__meta">
-          <span className="news-card__source">{article.sourceName || 'Unknown source'}</span>
-          <span className="news-card__dot">·</span>
-          <span className="news-card__time">{formatDateTime(article.pubDate)}</span>
-        </div>
 
         <a
+          className="news-card__media"
           href={article.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="news-card__title"
         >
-          {article.title}
+          {article.imageUrl ? (
+            <img src={article.imageUrl} alt="" loading="lazy" />
+          ) : (
+            <div className="news-card__media news-card__media--placeholder">
+              <span>N°</span>
+            </div>
+          )}
         </a>
 
-        {article.description && <p className="news-card__desc">{article.description}</p>}
-
-        <div className="news-card__footer">
-          <div className="news-card__tags">
-            {(article.categories || []).slice(0, 2).map((cat) => (
-              <span key={cat} className="news-card__tag">
-                {cat}
-              </span>
-            ))}
+        <div className="news-card__body">
+          <div className="news-card__meta">
+            <span className="news-card__source">{article.sourceName || 'Unknown source'}</span>
+            <span className="news-card__dot">·</span>
+            <span className="news-card__time">{formatDateTime(article.pubDate)}</span>
           </div>
 
-          {user && (
-            <button
-              className={`news-card__bookmark ${bookmarked ? 'news-card__bookmark--active' : ''}`}
-              onClick={toggleBookmark}
-              disabled={busy}
-              aria-label={bookmarked ? 'Remove bookmark' : 'Save article'}
-              title={bookmarked ? 'Remove bookmark' : 'Save article'}
-            >
-              {bookmarked ? '★' : '☆'}
-            </button>
-          )}
+          <a
+            href={article.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="news-card__title"
+          >
+            {article.title}
+          </a>
+
+          {/* Renders description ONLY when it provides actual distinct content */}
+          {!isDuplicateDesc && <p className="news-card__desc">{article.description}</p>}
+
+          <div className="news-card__footer">
+            <div className="news-card__tags">
+              {(article.categories || []).slice(0, 2).map((cat) => (
+                <span key={cat} className="news-card__tag">
+                  {cat}
+                </span>
+              ))}
+            </div>
+
+            <div className="news-card__actions">
+              <button
+                type="button"
+                className={`news-card__action-btn ${isPlaying ? 'news-card__action-btn--active' : ''}`}
+                onClick={toggleSpeech}
+                title={isPlaying ? 'Stop Listening' : 'Listen to Story'}
+              >
+                {isPlaying ? '⏹ Stop' : '🔊 Listen'}
+              </button>
+
+              <button
+                type="button"
+                className="news-card__action-btn"
+                onClick={openShareModal}
+                title="Share & QR Code"
+              >
+                🔗 Share
+              </button>
+
+              {user && (
+                <button
+                  className={`news-card__bookmark ${bookmarked ? 'news-card__bookmark--active' : ''}`}
+                  onClick={toggleBookmark}
+                  disabled={busy}
+                  aria-label={bookmarked ? 'Remove bookmark' : 'Save article'}
+                  title={bookmarked ? 'Remove bookmark' : 'Save article'}
+                >
+                  {bookmarked ? '★' : '☆'}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+
+      {showShareModal && (
+        <ShareModal
+          article={{ title: article.title, url: article.link }}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
+    </>
   )
 }
