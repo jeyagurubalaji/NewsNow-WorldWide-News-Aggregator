@@ -1,5 +1,4 @@
-// frontend/src/components/NewsCard.jsx
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { addBookmark, removeBookmark } from '../api/newsApi'
 import ShareModal from './ShareModal'
@@ -30,22 +29,15 @@ function formatDateTime(pubDate) {
   return `${formattedDate} ${formattedTime} (${relative})`
 }
 
-export default function NewsCard({ article }) {
+export default function NewsCard({ article, index, activeSpeechIndex, isSpeaking, onToggleSpeech }) {
   const { user } = useAuth()
   const [bookmarked, setBookmarked] = useState(article.bookmarked)
   const [busy, setBusy] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
-
-  const [isPlaying, setIsPlaying] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
 
-  useEffect(() => {
-    return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel()
-      }
-    }
-  }, [])
+  // Determines if this specific card is currently playing
+  const isCurrentlyPlaying = activeSpeechIndex === index && isSpeaking
 
   const showToast = (msg) => {
     setToastMessage(msg)
@@ -54,33 +46,10 @@ export default function NewsCard({ article }) {
     }, 2500)
   }
 
-  const toggleSpeech = (e) => {
+  const handleSpeechClick = (e) => {
     e.preventDefault()
     e.stopPropagation()
-
-    if (!('speechSynthesis' in window)) {
-      alert('Text-to-Speech is not supported in your browser.')
-      return
-    }
-
-    const synth = window.speechSynthesis
-
-    if (isPlaying) {
-      synth.cancel()
-      setIsPlaying(false)
-      return
-    }
-
-    const textToRead = article.title
-    const utterance = new SpeechSynthesisUtterance(textToRead)
-    utterance.rate = 1.0
-
-    utterance.onend = () => setIsPlaying(false)
-    utterance.onerror = () => setIsPlaying(false)
-
-    synth.cancel()
-    synth.speak(utterance)
-    setIsPlaying(true)
+    onToggleSpeech(index)
   }
 
   const openShareModal = (e) => {
@@ -118,13 +87,11 @@ export default function NewsCard({ article }) {
   }
 
   // --- Strict Deduplication Logic ---
-  // Normalizes strings by removing punctuation, spaces, and lowercase for precise comparison
   const normalize = (str) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '')
 
   const normTitle = normalize(article.title)
   const normDesc = normalize(article.description)
 
-  // Flag as duplicate if empty, exact match, or if description starts with/contains the headline
   const isDuplicateDesc =
     !normDesc ||
     normDesc === normTitle ||
@@ -133,12 +100,14 @@ export default function NewsCard({ article }) {
 
   return (
     <>
-      <article className="news-card" style={{ position: 'relative' }}>
-        {toastMessage && (
-          <div className="news-card__toast">
-            {toastMessage}
-          </div>
-        )}
+      <article
+        className="news-card"
+        style={{
+          position: 'relative',
+          border: isCurrentlyPlaying ? '2px solid #ef4444' : undefined,
+        }}
+      >
+        {toastMessage && <div className="news-card__toast">{toastMessage}</div>}
 
         <a
           className="news-card__media"
@@ -171,7 +140,6 @@ export default function NewsCard({ article }) {
             {article.title}
           </a>
 
-          {/* Renders description ONLY when it provides actual distinct content */}
           {!isDuplicateDesc && <p className="news-card__desc">{article.description}</p>}
 
           <div className="news-card__footer">
@@ -186,11 +154,13 @@ export default function NewsCard({ article }) {
             <div className="news-card__actions">
               <button
                 type="button"
-                className={`news-card__action-btn ${isPlaying ? 'news-card__action-btn--active' : ''}`}
-                onClick={toggleSpeech}
-                title={isPlaying ? 'Stop Listening' : 'Listen to Story'}
+                className={`news-card__action-btn ${
+                  isCurrentlyPlaying ? 'news-card__action-btn--active' : ''
+                }`}
+                onClick={handleSpeechClick}
+                title={isCurrentlyPlaying ? 'Stop Listening' : 'Listen to Story'}
               >
-                {isPlaying ? '⏹ Stop' : '🔊 Listen'}
+                {isCurrentlyPlaying ? '⏹ Stop' : '🔊 Listen'}
               </button>
 
               <button
@@ -204,7 +174,9 @@ export default function NewsCard({ article }) {
 
               {user && (
                 <button
-                  className={`news-card__bookmark ${bookmarked ? 'news-card__bookmark--active' : ''}`}
+                  className={`news-card__bookmark ${
+                    bookmarked ? 'news-card__bookmark--active' : ''
+                  }`}
                   onClick={toggleBookmark}
                   disabled={busy}
                   aria-label={bookmarked ? 'Remove bookmark' : 'Save article'}
