@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import SearchBar from './SearchBar'
 import LanguageSwitcher from './LanguageSwitcher'
@@ -25,6 +25,29 @@ export default function Navbar() {
         {/* Search Bar */}
         <div className="navbar__search">
           <SearchBar />
+        </div>
+
+        {/* Center Item: True Detective AI Button */}
+        <div className="navbar__detective">
+          <NavLink
+            to="/detective"
+            className="navbar__link"
+            style={({ isActive }) => ({
+              backgroundColor: isActive ? '#dc2626' : '#ef4444',
+              color: '#ffffff',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontWeight: '600',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.9rem',
+              transition: 'background-color 0.2s ease',
+            })}
+          >
+            🕵️ True Detective AI
+          </NavLink>
         </div>
 
         {/* Navigation Actions */}
