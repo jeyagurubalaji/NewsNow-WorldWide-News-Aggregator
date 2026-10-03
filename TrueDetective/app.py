@@ -1,4 +1,7 @@
 import streamlit as st
+import threading
+import time
+import requests
 from ml_engine import RealFakeClassifier
 from claim_verifier import extract_claims
 
@@ -9,7 +12,27 @@ st.set_page_config(
     page_icon="🕵️‍♂️"
 )
 
+# -------------------------------------------------------------
+# BACKGROUND KEEP-ALIVE (Prevents Render Free Tier Cold Starts)
+# -------------------------------------------------------------
+def keep_alive():
+    url = "https://truedetective-rfc7.onrender.com/_stcore/health"
+    while True:
+        try:
+            time.sleep(600)  # Ping every 10 minutes (600s)
+            requests.get(url, timeout=10)
+        except Exception:
+            pass
+
+# Start daemon thread once on initial startup
+if "keep_alive_started" not in st.session_state:
+    st.session_state["keep_alive_started"] = True
+    thread = threading.Thread(target=keep_alive, daemon=True)
+    thread.start()
+
+# -------------------------------------------------------------
 # 1. Cache the heavy ML model resource so it loads ONCE in RAM
+# -------------------------------------------------------------
 @st.cache_resource
 def get_classifier():
     return RealFakeClassifier()
