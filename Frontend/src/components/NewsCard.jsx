@@ -82,8 +82,7 @@ export default function NewsCard({ article, index, activeSpeechIndex, isSpeaking
         setBookmarked(false)
         showToast('Bookmark removed successfully')
       } else {
-        // Pass the complete article object for backend saving requirements
-        await addBookmark(article)
+        await addBookmark(targetId)
         setBookmarked(true)
         showToast('Bookmark saved successfully!')
       }
@@ -189,7 +188,6 @@ export default function NewsCard({ article, index, activeSpeechIndex, isSpeaking
                 🔗 Share
               </button>
 
-              {/* Display star icon button for all users */}
               <button
                 type="button"
                 className={`news-card__bookmark ${
