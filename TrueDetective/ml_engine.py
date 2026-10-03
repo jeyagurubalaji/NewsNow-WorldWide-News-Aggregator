@@ -1,4 +1,3 @@
-# true_detective/ml_engine.py
 import re
 import urllib.parse
 import feedparser
@@ -6,22 +5,22 @@ from sentence_transformers import SentenceTransformer, util
 import streamlit as st
 
 @st.cache_resource
-def load_model():
+def get_sentence_transformer():
     return SentenceTransformer('all-MiniLM-L6-v2')
 
 class RealFakeClassifier:
     def __init__(self):
-        self.encoder = load_model()
+        # Do not load heavy models directly in __init__
+        pass
 
     def clean_query(self, text):
-        # Extract meaningful alphanumeric terms
         words = re.findall(r'\b[A-Za-z0-9]+\b', text)
         return " ".join(words[:6])
 
     def search_news_rss(self, claim_text):
         query_variants = [
-            self.clean_query(claim_text),           # Filtered terms
-            claim_text[:60]                         # Direct partial phrase
+            self.clean_query(claim_text),
+            claim_text[:60]
         ]
 
         entries = []
@@ -33,24 +32,26 @@ class RealFakeClassifier:
             feed = feedparser.parse(rss_url)
             if feed.entries:
                 entries.extend(feed.entries[:8])
-                break # Stop if we found relevant feeds
+                break
 
         if not entries:
             return None
 
-        # Compare claim against feed headlines using semantic cosine similarity
-        claim_emb = self.encoder.encode(claim_text, convert_to_tensor=True)
+        # Safely access cached model instance on execution
+        encoder = get_sentence_transformer()
+
+        # Generate lightweight embeddings
+        claim_emb = encoder.encode(claim_text, convert_to_numpy=True)
         scores = []
 
         for entry in entries:
             headline = entry.get('title', '')
-            headline_emb = self.encoder.encode(headline, convert_to_tensor=True)
+            headline_emb = encoder.encode(headline, convert_to_numpy=True)
             sim = float(util.cos_sim(claim_emb, headline_emb)[0][0])
             scores.append((sim, headline))
 
         max_sim, best_match = max(scores, key=lambda x: x[0])
 
-        # Dynamic Threshold Calibration
         if max_sim >= 0.55:
             confidence = round(min(80.0 + (max_sim * 20.0), 98.0), 1)
             return {
