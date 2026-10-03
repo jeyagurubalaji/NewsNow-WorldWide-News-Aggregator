@@ -1,8 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function TrueDetectiveView() {
   const [showPopup, setShowPopup] = useState(true);
+  const [canDismiss, setCanDismiss] = useState(false);
+  const iframeLoaded = useRef(false);
+
   const detectiveUrl = import.meta.env.VITE_TRUE_DETECTIVE_URL || 'https://truedetective-rfc7.onrender.com';
+
+  useEffect(() => {
+    // 10-second timer guarantee
+    const timer = setTimeout(() => {
+      setCanDismiss(true);
+      // Auto-close if the iframe has already finished loading
+      if (iframeLoaded.current) {
+        setShowPopup(false);
+      }
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleIframeLoad = () => {
+    iframeLoaded.current = true;
+    // Only dismiss automatically if the 10-second threshold has passed
+    if (canDismiss) {
+      setShowPopup(false);
+    }
+  };
 
   return (
     <div className="container page-section" style={{ height: 'calc(100vh - 80px)', padding: 0, position: 'relative' }}>
@@ -37,7 +61,7 @@ export default function TrueDetectiveView() {
               color: 'var(--ink, #E8E5DC)'
             }}
           >
-            <div style={{ fontSize: '2.2rem', marginBottom: '12px' }}>🕵️️‍♂️</div>
+            <div style={{ fontSize: '2.2rem', marginBottom: '12px' }}>🕵‍♂️</div>
             <h3
               style={{
                 fontFamily: 'var(--font-display, Georgia, serif)',
@@ -55,7 +79,7 @@ export default function TrueDetectiveView() {
                 lineHeight: 1.5
               }}
             >
-              Connecting to the global verification engine. Please wait a moment while the AI initializes...
+              Connecting to the global verification engine. Please wait while the AI initializes...
             </p>
 
             <div className="spinner-wrap" style={{ padding: '10px 0 20px' }}>
@@ -64,9 +88,10 @@ export default function TrueDetectiveView() {
 
             <button
               onClick={() => setShowPopup(false)}
+              disabled={!canDismiss}
               style={{
-                backgroundColor: 'var(--accent-wire, #E0574A)',
-                color: '#FFFFFF',
+                backgroundColor: canDismiss ? 'var(--accent-wire, #E0574A)' : 'var(--rule, #33373F)',
+                color: canDismiss ? '#FFFFFF' : 'var(--ink-soft, #A6A196)',
                 border: 'none',
                 padding: '8px 20px',
                 borderRadius: '4px',
@@ -74,10 +99,11 @@ export default function TrueDetectiveView() {
                 fontSize: '0.78rem',
                 letterSpacing: '0.04em',
                 textTransform: 'uppercase',
-                cursor: 'pointer'
+                cursor: canDismiss ? 'pointer' : 'not-allowed',
+                transition: 'all 0.2s ease'
               }}
             >
-              Continue to Engine
+              {canDismiss ? 'Continue to Engine' : 'Initializing (10s)...'}
             </button>
           </div>
         </div>
@@ -89,7 +115,7 @@ export default function TrueDetectiveView() {
         title="True Detective AI Fake News Engine"
         width="100%"
         height="100%"
-        onLoad={() => setShowPopup(false)}
+        onLoad={handleIframeLoad}
         style={{ border: 'none', borderRadius: '8px' }}
       />
     </div>
