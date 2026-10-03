@@ -6,7 +6,12 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('newsnow_token')
+    // Check primary key and standard fallback keys
+    const token =
+      localStorage.getItem('newsnow_token') ||
+      localStorage.getItem('token') ||
+      sessionStorage.getItem('newsnow_token')
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
