@@ -1175,3 +1175,82 @@ font {
     width: 100% !important;
   }
 }
+
+/* ==========================================
+   HAMBURGER MENU & MOBILE NAVIGATION
+   ========================================== */
+.navbar__hamburger {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 50;
+}
+
+.hamburger-bar {
+  width: 22px;
+  height: 2px;
+  background-color: var(--ink, #E8E5DC);
+  transition: all 0.2s ease-in-out;
+  border-radius: 1px;
+}
+
+@media (max-width: 768px) {
+  .navbar__row {
+    position: relative;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+
+  /* Show hamburger button on mobile right next to True Detective AI */
+  .navbar__hamburger {
+    display: flex !important;
+  }
+
+  /* Animate hamburger bars to an 'X' shape on open */
+  .hamburger-bar.open:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .hamburger-bar.open:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger-bar.open:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  /* Adjust True Detective AI button size for narrow screens */
+  .navbar__detective {
+    margin-left: auto;
+    margin-right: 4px;
+  }
+
+  /* Mobile Dropdown Panel */
+  .navbar__nav {
+    display: none !important;
+    position: absolute;
+    top: 68px;
+    right: 0;
+    width: 100%;
+    background-color: var(--surface, #1C2027);
+    border-bottom: 1px solid var(--rule, #33373F);
+    padding: 20px;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 18px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    z-index: 45;
+  }
+
+  .navbar__nav--open {
+    display: flex !important;
+  }
+
+  .navbar__user {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
