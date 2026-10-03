@@ -9,9 +9,13 @@ st.set_page_config(
     page_icon="🕵️‍♂️"
 )
 
-# Initialize Classifier in Session State
-if "classifier" not in st.session_state:
-    st.session_state.classifier = RealFakeClassifier()
+# 1. Cache the heavy ML model resource so it loads ONCE in RAM
+@st.cache_resource
+def get_classifier():
+    return RealFakeClassifier()
+
+# 2. Retrieve cached classifier instance
+classifier = get_classifier()
 
 # Main Title & Description
 st.title("🕵️‍♂️ True Detective — Global AI Fake News Detector")
@@ -37,7 +41,7 @@ if st.button("Check Article Now", type="primary"):
     else:
         with st.spinner("Verifying claim against global news sources and knowledge bases..."):
             # Run Semantic Analysis & Claim Extraction
-            res = st.session_state.classifier.analyze("Instant Check", input_text)
+            res = classifier.analyze("Instant Check", input_text)
             claims = extract_claims(input_text)
 
         st.markdown("---")
