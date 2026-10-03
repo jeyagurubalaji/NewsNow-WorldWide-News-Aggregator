@@ -33,7 +33,7 @@ export default function Navbar() {
           <SearchBar />
         </div>
 
-        {/* Center Item: True Detective AI Button (Always Visible) */}
+        {/* Center Item: True Detective AI Button */}
         <div className="navbar__detective">
           <NavLink
             to="/detective"
@@ -57,7 +57,7 @@ export default function Navbar() {
           </NavLink>
         </div>
 
-        {/* Hamburger Three-Bar Icon (Mobile Only) */}
+        {/* Hamburger Three-Bar Icon */}
         <button
           className="navbar__hamburger"
           onClick={toggleMenu}
@@ -68,11 +68,10 @@ export default function Navbar() {
           <span className={`hamburger-bar ${menuOpen ? 'open' : ''}`}></span>
         </button>
 
-        {/* Navigation Actions (Row on Desktop, Collapsible Drawer on Mobile) */}
+        {/* Navigation Actions */}
         <nav className={`navbar__nav ${menuOpen ? 'navbar__nav--open' : ''}`}>
-          <div onClick={closeMenu}>
-            <LanguageSwitcher />
-          </div>
+          {/* Direct component without closeMenu wrapper */}
+          <LanguageSwitcher />
 
           {user ? (
             <>
