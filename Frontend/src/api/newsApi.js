@@ -15,12 +15,18 @@ export const searchNews = (query, country) =>
 export const fetchSupportedCountries = () => api.get('/news/countries').then((r) => r.data)
 
 // ---- Bookmarks ----
-// Bookmarks live in this file (rather than a separate bookmarkApi.js) since they're
-// really just a saved subset of news articles and share the same axios instance.
 
 export const getBookmarks = () => api.get('/bookmarks').then((r) => r.data)
 
-export const addBookmark = (articleId) => api.post('/bookmarks', { articleId }).then((r) => r.data)
+export const addBookmark = (article) => {
+  // Extract string articleId whether 'article' is an object or string ID
+  const articleId =
+    typeof article === 'object' && article !== null
+      ? article.articleId || article.link || article.url
+      : article
+
+  return api.post('/bookmarks', { articleId }).then((r) => r.data)
+}
 
 export const removeBookmark = (articleId) =>
-  api.delete(`/bookmarks`, { params: { articleId } }).then((r) => r.data)
+  api.delete('/bookmarks', { params: { articleId } }).then((r) => r.data)
