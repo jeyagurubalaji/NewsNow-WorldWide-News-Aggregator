@@ -1,16 +1,11 @@
 import re
 import urllib.parse
 import feedparser
-from sentence_transformers import SentenceTransformer, util
-import streamlit as st
-
-@st.cache_resource
-def get_sentence_transformer():
-    return SentenceTransformer('all-MiniLM-L6-v2')
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 class RealFakeClassifier:
     def __init__(self):
-        # Do not load heavy models directly in __init__
         pass
 
     def clean_query(self, text):
@@ -37,29 +32,30 @@ class RealFakeClassifier:
         if not entries:
             return None
 
-        # Safely access cached model instance on execution
-        encoder = get_sentence_transformer()
+        # Ultra-lightweight TF-IDF Cosine Similarity calculation
+        headlines = [entry.get('title', '') for entry in entries]
+        corpus = [claim_text] + headlines
 
-        # Generate lightweight embeddings
-        claim_emb = encoder.encode(claim_text, convert_to_numpy=True)
-        scores = []
+        vectorizer = TfidfVectorizer().fit_transform(corpus)
+        vectors = vectorizer.toarray()
 
-        for entry in entries:
-            headline = entry.get('title', '')
-            headline_emb = encoder.encode(headline, convert_to_numpy=True)
-            sim = float(util.cos_sim(claim_emb, headline_emb)[0][0])
-            scores.append((sim, headline))
+        claim_vector = vectors[0].reshape(1, -1)
+        headline_vectors = vectors[1:]
 
-        max_sim, best_match = max(scores, key=lambda x: x[0])
+        similarities = cosine_similarity(claim_vector, headline_vectors)[0]
 
-        if max_sim >= 0.55:
+        max_idx = similarities.argmax()
+        max_sim = similarities[max_idx]
+        best_match = headlines[max_idx]
+
+        if max_sim >= 0.35:
             confidence = round(min(80.0 + (max_sim * 20.0), 98.0), 1)
             return {
                 "status": "LIKELY TRUE",
                 "confidence": confidence,
                 "explanation": f"Verified story matches global news reporting: '{best_match}'"
             }
-        elif 0.30 <= max_sim < 0.55:
+        elif 0.15 <= max_sim < 0.35:
             return {
                 "status": "MISLEADING",
                 "confidence": 75.0,
