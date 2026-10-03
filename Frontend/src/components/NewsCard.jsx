@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { addBookmark, removeBookmark } from '../api/newsApi'
 import ShareModal from './ShareModal'
@@ -31,6 +32,7 @@ function formatDateTime(pubDate) {
 
 export default function NewsCard({ article, index, activeSpeechIndex, isSpeaking, onToggleSpeech }) {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [bookmarked, setBookmarked] = useState(article.bookmarked)
   const [busy, setBusy] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
@@ -62,7 +64,14 @@ export default function NewsCard({ article, index, activeSpeechIndex, isSpeaking
     e.preventDefault()
     e.stopPropagation()
 
-    if (!user || busy) return
+    // 1. Guard against unauthenticated users
+    if (!user) {
+      alert('Please sign in to save articles to your bookmarks.')
+      navigate('/login')
+      return
+    }
+
+    if (busy) return
     setBusy(true)
 
     const targetId = article.articleId || article.link
@@ -73,13 +82,21 @@ export default function NewsCard({ article, index, activeSpeechIndex, isSpeaking
         setBookmarked(false)
         showToast('Bookmark removed successfully')
       } else {
-        await addBookmark(targetId)
+        // Pass the complete article object for backend saving requirements
+        await addBookmark(article)
         setBookmarked(true)
         showToast('Bookmark saved successfully!')
       }
     } catch (error) {
       const errCode = error.response ? error.response.status : error.message
-      alert(`Failed to save! Error Code: ${errCode}`)
+
+      // 2. Catch 401 Unauthorized / expired token specifically
+      if (error.response?.status === 401) {
+        alert('Your session has expired. Please sign in again.')
+        navigate('/login')
+      } else {
+        alert(`Failed to update bookmark. Error Code: ${errCode}`)
+      }
       console.error('Bookmark Error:', error)
     } finally {
       setBusy(false)
@@ -172,19 +189,19 @@ export default function NewsCard({ article, index, activeSpeechIndex, isSpeaking
                 🔗 Share
               </button>
 
-              {user && (
-                <button
-                  className={`news-card__bookmark ${
-                    bookmarked ? 'news-card__bookmark--active' : ''
-                  }`}
-                  onClick={toggleBookmark}
-                  disabled={busy}
-                  aria-label={bookmarked ? 'Remove bookmark' : 'Save article'}
-                  title={bookmarked ? 'Remove bookmark' : 'Save article'}
-                >
-                  {bookmarked ? '★' : '☆'}
-                </button>
-              )}
+              {/* Display star icon button for all users */}
+              <button
+                type="button"
+                className={`news-card__bookmark ${
+                  bookmarked ? 'news-card__bookmark--active' : ''
+                }`}
+                onClick={toggleBookmark}
+                disabled={busy}
+                aria-label={bookmarked ? 'Remove bookmark' : 'Save article'}
+                title={bookmarked ? 'Remove bookmark' : 'Save article'}
+              >
+                {bookmarked ? '★' : '☆'}
+              </button>
             </div>
           </div>
         </div>
