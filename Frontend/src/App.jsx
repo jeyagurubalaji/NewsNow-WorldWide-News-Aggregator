@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import CountryNews from './pages/CountryNews'
 import SearchResults from './pages/SearchResults'
 import Bookmarks from './pages/Bookmarks'
+import TrueDetectiveView from './pages/TrueDetectiveView'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
@@ -54,6 +55,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Bookmarks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/detective"
+              element={
+                <ProtectedRoute>
+                  <TrueDetectiveView />
                 </ProtectedRoute>
               }
             />
