@@ -7,7 +7,6 @@ export default function Layout() {
     <div className="page">
       {/* Hidden Google Translate script mounting point */}
       <NllbTranslate />
-      
       <Navbar />
       <div className="page__body">
         <Outlet />
