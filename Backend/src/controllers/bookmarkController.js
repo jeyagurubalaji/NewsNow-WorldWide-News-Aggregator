@@ -11,11 +11,18 @@ async function getBookmarks(req, res, next) {
 
 async function addBookmark(req, res, next) {
   try {
-    const { articleId } = req.body;
+    let { articleId } = req.body;
+
+    // Handle nested or object body fallback
+    if (typeof articleId === 'object' && articleId !== null) {
+      articleId = articleId.articleId || articleId.link || articleId.url;
+    }
+
     if (!articleId) {
       const ApiError = require('../utils/ApiError');
       throw new ApiError(400, 'articleId is required');
     }
+
     const bookmark = await bookmarkService.addBookmark(req.userEmail, articleId);
     res.json(bookmark);
   } catch (err) {
@@ -23,8 +30,6 @@ async function addBookmark(req, res, next) {
   }
 }
 
-// DELETE /api/bookmarks?articleId=... (query param, matching the uploaded project's
-// BookmarkController.java and the frontend's newsApi.js removeBookmark() call).
 async function removeBookmark(req, res, next) {
   try {
     await bookmarkService.removeBookmark(req.userEmail, req.query.articleId);
