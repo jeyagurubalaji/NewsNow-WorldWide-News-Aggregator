@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import SearchBar from './SearchBar'
@@ -6,9 +7,14 @@ import LanguageSwitcher from './LanguageSwitcher'
 export default function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const toggleMenu = () => setMenuOpen(!menuOpen)
+  const closeMenu = () => setMenuOpen(false)
 
   const handleLogout = () => {
     logout()
+    closeMenu()
     navigate('/')
   }
 
@@ -17,7 +23,7 @@ export default function Navbar() {
       <div className="container navbar__row">
 
         {/* Brand / Logo */}
-        <Link to="/" className="navbar__brand">
+        <Link to="/" className="navbar__brand" onClick={closeMenu}>
           <span className="navbar__mark">N°</span>
           NewsNow
         </Link>
@@ -27,11 +33,12 @@ export default function Navbar() {
           <SearchBar />
         </div>
 
-        {/* Center Item: True Detective AI Button */}
+        {/* Center Item: True Detective AI Button (Always Visible) */}
         <div className="navbar__detective">
           <NavLink
             to="/detective"
             className="navbar__link"
+            onClick={closeMenu}
             style={({ isActive }) => ({
               backgroundColor: isActive ? '#dc2626' : '#ef4444',
               color: '#ffffff',
@@ -50,17 +57,30 @@ export default function Navbar() {
           </NavLink>
         </div>
 
-        {/* Navigation Actions */}
-        <nav className="navbar__nav">
-          <LanguageSwitcher />
+        {/* Hamburger Three-Bar Icon (Mobile Only) */}
+        <button
+          className="navbar__hamburger"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
+          <span className={`hamburger-bar ${menuOpen ? 'open' : ''}`}></span>
+          <span className={`hamburger-bar ${menuOpen ? 'open' : ''}`}></span>
+          <span className={`hamburger-bar ${menuOpen ? 'open' : ''}`}></span>
+        </button>
+
+        {/* Navigation Actions (Row on Desktop, Collapsible Drawer on Mobile) */}
+        <nav className={`navbar__nav ${menuOpen ? 'navbar__nav--open' : ''}`}>
+          <div onClick={closeMenu}>
+            <LanguageSwitcher />
+          </div>
 
           {user ? (
             <>
-              <Link to="/" className="navbar__link">
+              <Link to="/" className="navbar__link" onClick={closeMenu}>
                 📅 Latest News
               </Link>
 
-              <Link to="/bookmarks" className="navbar__link">
+              <Link to="/bookmarks" className="navbar__link" onClick={closeMenu}>
                 ⭐ Bookmarks
               </Link>
 
@@ -73,10 +93,10 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" className="navbar__link">
+              <Link to="/login" className="navbar__link" onClick={closeMenu}>
                 Sign in
               </Link>
-              <Link to="/register" className="navbar__cta">
+              <Link to="/register" className="navbar__cta" onClick={closeMenu}>
                 Create account
               </Link>
             </>
